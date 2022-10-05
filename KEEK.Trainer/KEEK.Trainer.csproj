@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AssemblyName>KEEK.Trainer</AssemblyName>
+        <Description>For practicing KEEK speedrun</Description>
+        <Version>1.0.0</Version>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>latest</LangVersion>
+        <RestoreAdditionalProjectSources>
+            https://api.nuget.org/v3/index.json;
+            https://nuget.bepinex.dev/v3/index.json
+        </RestoreAdditionalProjectSources>
+        <RootNamespace>KEEK.Trainer</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+        <PackageReference Include="BepInEx.Core" Version="5.*" />
+        <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemDefinitionGroup>
+        <Reference>
+            <Private>False</Private>
+        </Reference>
+    </ItemDefinitionGroup>
+
+    <ItemGroup>
+      <Reference Include="Assembly-CSharp">
+        <HintPath>..\libs-stripped\Assembly-CSharp-nstrip.dll</HintPath>
+      </Reference>
+      <Reference Include="Sirenix.Serialization">
+        <HintPath>..\libs-stripped\Sirenix.Serialization-nstrip.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine">
+        <HintPath>..\libs-stripped\UnityEngine-nstrip.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.AudioModule">
+        <HintPath>..\libs-stripped\UnityEngine.AudioModule-nstrip.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.CoreModule">
+        <HintPath>..\libs-stripped\UnityEngine.CoreModule-nstrip.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.IMGUIModule">
+        <HintPath>..\libs-stripped\UnityEngine.IMGUIModule-nstrip.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.TextRenderingModule">
+        <HintPath>..\libs-stripped\UnityEngine.TextRenderingModule-nstrip.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <Target Condition="'$(Configuration)' == 'Release'" Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="xcopy $(SolutionDir)BepInex_x64 $(SolutionDir)out\Windows /E/H/C/I/Y" />
+      <Exec Command="copy $(TargetPath) $(SolutionDir)out\Windows\BepInEx\plugins /Y" />
+      <Exec Command="powershell -Command Compress-Archive -Path '$(SolutionDir)out\Windows\*' -DestinationPath '$(SolutionDir)out\KEEK.Trainer_Windows_v$(Version).zip' -Force" />
+
+      <Exec Command="xcopy $(SolutionDir)BepInex_unix $(SolutionDir)out\macOS /E/H/C/I/Y" />
+      <Exec Command="copy $(TargetPath) $(SolutionDir)out\macOS\BepInEx\plugins /Y" />
+      <Exec Command="powershell -Command Compress-Archive -Path '$(SolutionDir)out\macOS\*' -DestinationPath '$(SolutionDir)out\KEEK.Trainer_macOS_v$(Version).zip' -Force" />
+    </Target>
+</Project>
